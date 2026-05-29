@@ -12,7 +12,7 @@ Pick a year, paint your design on the grid, hit **Generate**, and push the resul
 
 ## Quick Start
 
-**Prerequisites:** [Python 3.13+](https://www.python.org/downloads/) and [Git](https://git-scm.com/downloads).
+**Prerequisites:** [Python 3.7+](https://www.python.org/downloads/) and [Git](https://git-scm.com/downloads).
 
 Git must be configured with your identity:
 
@@ -90,6 +90,5 @@ Paint with Git/
 ├── assets/                # Images & icons
 ├── run.bat                # Windows launcher
 ├── run.sh                 # Linux/macOS launcher
-├── pyproject.toml         # Dependencies
-└── .paintwithgit/         # Generated repo (auto-created)
+└── pyproject.toml         # Dependencies
 ```
