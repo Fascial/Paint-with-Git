@@ -9,5 +9,16 @@ wheels/
 # Virtual environments
 .venv
 
+# App-generated files
+.paintwithgit/
+.pwg_config
 .test
 .dates
+
+# IDEs and Editors
+.vscode/
+.idea/
+
+# OS generated files
+.DS_Store
+Thumbs.db

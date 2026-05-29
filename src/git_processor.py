@@ -1,39 +1,91 @@
 import os
-import argparse
+import sys
+import stat
 import subprocess
 
-if os.system("git --version"):
-    print("git isn't installed, install git to use this tool")
+def _remove_dir_tree(path):
+    """Remove a directory tree recursively."""
+    for root, dirs, files in os.walk(path, topdown=False):
+        for name in files:
+            fp = os.path.join(root, name)
+            os.chmod(fp, stat.S_IWRITE)
+            os.remove(fp)
+        for name in dirs:
+            fp = os.path.join(root, name)
+            try:
+                os.rmdir(fp)
+            except OSError:
+                os.chmod(fp, stat.S_IWRITE)
+                os.remove(fp)
+    os.rmdir(path)
 
-parser = argparse.ArgumentParser(description="Paint with Git")
-parser.add_argument("--dir", type=str, default="../.test", help="Directory for the painting with agent")
-parser.add_argument("--dates", type=str, default=".dates", help="Directory for the commit dates")
+def _run_git(cmd, cwd):
+    import sys
+    kwargs = {}
+    if sys.platform == "win32":
+        kwargs["creationflags"] = subprocess.CREATE_NO_WINDOW
+    result = subprocess.run(["git"] + cmd, capture_output=True, text=True, cwd=cwd, **kwargs)
+    if result.returncode != 0:
+        raise RuntimeError(f"Git command failed: {' '.join(cmd)}\n{result.stderr.strip()}")
+    return result.stdout.strip()
 
-args = parser.parse_args()
+def main(target_dir, dates):
+    """Generate a git repo with empty commits for the given dates."""
+    remote_url = None
+    git_path = os.path.join(target_dir, ".git")
+    
+    if os.path.exists(git_path):
+        try:
+            remote_url = _run_git(["remote", "get-url", "origin"], target_dir)
+        except RuntimeError:
+            pass
+        _remove_dir_tree(git_path)
 
-try:
-    with open(".dates", "r") as file:
-        dates = list(map(lambda x: x.replace("\n", ""), file.readlines()))
-except FileNotFoundError:
-    print(f"The dates file .date not found {'here' if os.curdir == '.' else os.curdir}")
+    os.makedirs(target_dir, exist_ok=True)
+    _run_git(["init", "."], target_dir)
 
-try:
-    os.chdir(args.dir)
-except FileNotFoundError as e:
-    print(f"The directory {args.dir} does not exist")
-    exit()
+    message = "Commit made by Paint with Git\nhttps://github.com/Fascial/Paint-with-Git\nFor Contact Details visit http://ghazarat.space/\n"
+    
+    try:
+        name = _run_git(["config", "--global", "user.name"], target_dir)
+        email = _run_git(["config", "--global", "user.email"], target_dir)
+    except Exception:
+        name = "Paint with Git User"
+        email = "user@example.com"
 
-if not ".git" in os.listdir():
-    os.system("git init .")
+    import datetime
+    stream_lines = []
+    message_bytes = message.encode("utf-8")
+    
+    commit_dates = dates if dates else ["2000-01-01"]
+    
+    for date in commit_dates:
+        dt_obj = datetime.datetime.strptime(date, "%Y-%m-%d").replace(hour=12)
+        timestamp = int(dt_obj.timestamp())
+        
+        stream_lines.append(b"commit refs/heads/main")
+        stream_lines.append(f"committer {name} <{email}> {timestamp} +0000".encode("utf-8"))
+        stream_lines.append(f"data {len(message_bytes)}".encode("utf-8"))
+        stream_lines.append(message_bytes)
 
-message = "Commit made by paint with commit tool"
-co_author = "Co-authored-by: Fascial <ID+Fascial@://github.com>"
+    stream_data = b"\n".join(stream_lines) + b"\n"
+    
+    kwargs = {}
+    if sys.platform == "win32":
+        kwargs["creationflags"] = subprocess.CREATE_NO_WINDOW
+        
+    res = subprocess.run(["git", "fast-import"], input=stream_data, cwd=target_dir, capture_output=True, **kwargs)
+    if res.returncode != 0:
+        raise RuntimeError(f"fast-import failed:\n{res.stderr.decode('utf-8', errors='replace')}")
 
-for date in dates:
-    command = ["git", "commit", "--allow-empty" ,f"--date='{date} 12:00:00'", "-m", message, "-m", co_author]
-    subprocess.run(command)
+    if dates:
+        count_msg = f"Created {len(dates)} commits."
+    else:
+        count_msg = "Created clean slate (1 placeholder commit)."
 
-if not bool(subprocess.run("git remote -v", capture_output=True).stdout):
-    print("This repository isn't connected to a Github/Remote Repository")
-else:
-    os.system("git push")
+    _run_git(["branch", "-M", "main"], target_dir)
+
+    if remote_url:
+        _run_git(["remote", "add", "origin", remote_url], target_dir)
+
+    return count_msg
