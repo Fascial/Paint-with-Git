@@ -10,7 +10,7 @@ wheels/
 .venv
 
 # App-generated files
-.paintwithgit/
+paintwithgit/
 .pwg_config
 .test
 .dates

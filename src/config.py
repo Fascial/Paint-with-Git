@@ -2,7 +2,6 @@ import os
 import json
 import datetime as dt
 
-# -- Theme constants --
 BG_PRIMARY = "#0d1117"
 BG_SECONDARY = "#161b22"
 BG_BUTTON = "#21262d"
@@ -32,9 +31,6 @@ class Config:
         )
         self.week_start = "sunday"
         self.year = dt.datetime.now().year
-        self.dir = os.path.abspath(
-            os.path.join(os.path.dirname(os.path.dirname(__file__)), ".paintwithgit")
-        )
         self.load()
 
     def clamp_year(self, year):
@@ -51,8 +47,6 @@ class Config:
                     self.year = self.clamp_year(data["year"])
                 if "week_start" in data:
                     self.week_start = data["week_start"]
-                if "dir" in data and os.path.isabs(data["dir"]):
-                    self.dir = data["dir"]
         except Exception:
             pass
 
@@ -62,7 +56,6 @@ class Config:
                 json.dump({
                     "year": self.year,
                     "week_start": self.week_start,
-                    "dir": self.dir,
                 }, f)
         except Exception:
             pass

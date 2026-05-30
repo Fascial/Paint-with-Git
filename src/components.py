@@ -20,27 +20,22 @@ class ControlPanel(ctk.CTkFrame):
         # TOP ROW: Repository Settings
         self.repo_frame = ctk.CTkFrame(self, fg_color=BG_SECONDARY, corner_radius=10)
         self.repo_frame.pack(fill="x", pady=(0, 10))
-        self.repo_frame.grid_columnconfigure(1, weight=1)
+        self.repo_frame.grid_columnconfigure(0, weight=1)
+        self.repo_frame.grid_columnconfigure(3, weight=1)
 
         paddings = {"padx": 15, "pady": 15}
 
-        self.dir_btn = ctk.CTkButton(
-            self.repo_frame, text="Choose Directory", command=self._choose_directory,
-            fg_color=BG_BUTTON, hover_color=BG_BUTTON_HOVER, width=140
+        self.open_btn = ctk.CTkButton(
+            self.repo_frame, text="Go to output", command=self._open_output_dir,
+            fg_color=BG_BUTTON, hover_color=BG_BUTTON_HOVER, width=140, font=("Arial", 14)
         )
-        self.dir_btn.grid(column=0, row=0, sticky="w", **paddings)
-
-        display_dir = self.config.dir if len(self.config.dir) < 60 else "..." + self.config.dir[-57:]
-        self.dir_label = ctk.CTkLabel(
-            self.repo_frame, text=display_dir, anchor="w", text_color=TEXT_PRIMARY, font=("Arial", 13)
-        )
-        self.dir_label.grid(column=1, row=0, sticky="w", padx=10)
+        self.open_btn.grid(column=1, row=0, sticky="e", **paddings)
 
         self.button = ctk.CTkButton(
             self.repo_frame, text="Generate", command=callbacks["generate"],
             fg_color=COLOR_GEN, hover_color=COLOR_GEN_HOVER, width=140, font=("Arial", 14, "bold")
         )
-        self.button.grid(column=2, row=0, sticky="e", **paddings)
+        self.button.grid(column=2, row=0, sticky="w", **paddings)
 
         # BOTTOM ROW: Drawing Tools
         self.tools_frame = ctk.CTkFrame(self, fg_color=BG_SECONDARY, corner_radius=10)
@@ -81,24 +76,22 @@ class ControlPanel(ctk.CTkFrame):
         )
         self.clear_btn.grid(column=4, row=0)
 
-    def _choose_directory(self):
-        import os
-        directory = filedialog.askdirectory(
-            initialdir=self.config.dir, title="Select Directory"
-        )
-        if directory:
-            git_dir = os.path.join(directory, ".git")
-            if os.path.exists(git_dir):
-                if not messagebox.askyesno(
-                    "Warning",
-                    f"This directory already contains a git repository:\n\n{directory}\n\nGenerating will overwrite it. Continue?"
-                ):
-                    return
-            self.config.dir = directory
-            self.config.save()
-            display_dir = directory if len(directory) < 40 else "..." + directory[-37:]
-            self.dir_label.configure(text=display_dir)
-            self.callbacks["on_dir_change"]()
+    def _open_output_dir(self):
+        import os, sys, subprocess
+        path = os.getcwd()
+        repo_path = os.path.join(path, "paintwithgit")
+        if not os.path.exists(repo_path):
+            os.makedirs(repo_path, exist_ok=True)
+            
+        try:
+            if sys.platform == "win32":
+                os.startfile(path)
+            elif sys.platform == "darwin":
+                subprocess.run(["open", path])
+            else:
+                subprocess.run(["xdg-open", path])
+        except Exception:
+            pass
 
     def _update_year(self, new_year):
         self.config.year = self.config.clamp_year(new_year)
@@ -128,7 +121,7 @@ class ControlPanel(ctk.CTkFrame):
         state = "normal" if enabled else "disabled"
         self.button.configure(state=state)
         self.clear_btn.configure(state=state)
-        self.dir_btn.configure(state=state)
+        self.open_btn.configure(state=state)
         self.year_left_btn.configure(state=state)
         self.year_right_btn.configure(state=state)
         self.year_entry.configure(state=state)

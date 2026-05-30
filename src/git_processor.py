@@ -4,7 +4,6 @@ import stat
 import subprocess
 
 def _remove_dir_tree(path):
-    """Remove a directory tree recursively."""
     for root, dirs, files in os.walk(path, topdown=False):
         for name in files:
             fp = os.path.join(root, name)
@@ -30,7 +29,6 @@ def _run_git(cmd, cwd):
     return result.stdout.strip()
 
 def main(target_dir, dates):
-    """Generate a git repo with empty commits for the given dates."""
     remote_url = None
     git_path = os.path.join(target_dir, ".git")
     
@@ -43,8 +41,9 @@ def main(target_dir, dates):
 
     os.makedirs(target_dir, exist_ok=True)
     _run_git(["init", "."], target_dir)
+    _run_git(["symbolic-ref", "HEAD", "refs/heads/main"], target_dir)
 
-    message = "Commit made by Paint with Git\nhttps://github.com/Fascial/Paint-with-Git\nFor Contact Details visit http://ghazarat.space/\n"
+    message = "Commit made by Paint with Git\nhttps://github.com/Fascial/Paint-with-Git\nFor Contact Details visit https://ghazarat.space/\n"
     
     try:
         name = _run_git(["config", "--global", "user.name"], target_dir)

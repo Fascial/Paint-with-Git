@@ -10,71 +10,47 @@ Pick a year, paint your design on the grid, hit **Generate**, and push the resul
 
 ---
 
-## Quick Start
-
-**Prerequisites:** [Python 3.7+](https://www.python.org/downloads/) and [Git](https://git-scm.com/downloads).
-
-Git must be configured with your identity:
-
-```bash
-git config --global user.name "Your Name"
-git config --global user.email "you@example.com"
-```
-
-On windows
-
-```bash
-.\run.bat
-```
-
-On Linux / macOS
-
-```
-chmod +x run.sh && ./run.sh
-```
-
-The script auto-installs [uv](https://github.com/astral-sh/uv) if needed, syncs dependencies, and launches the app.
-
----
-
 ## Usage
 
-### Draw
+### Step 1: Getting Started
 
-| Action          | Input                                |
-| --------------- | ------------------------------------ |
-| Paint a cell    | Left-click or drag                   |
-| Erase a cell    | Right-click or drag                  |
-| Switch year     | < > arrows or type in the year field |
-| Wipe the canvas | Click **Clear All**                  |
+1. **Download this project** and open the folder.
+2. **Install Python & Git** if you don't have them already:
+   - [Download Python](https://www.python.org/downloads/)
+   - [Download Git](https://git-scm.com/downloads)
+3. **Launch the App!**
+   - **Windows:** Just double-click the `run.bat` file!
+   - **Mac/Linux:** Open a terminal in this folder and type: `chmod +x run.sh && ./run.sh`
 
-### Generate
+### Step 2: Draw Your Masterpiece
 
-Click **Generate**. The app creates a `.paintwithgit/` folder containing a Git repo with empty commits matching your drawing. An `[OK]` status appears when done.
+- **Left-Click (or drag):** Paint a green square.
+- **Right-Click (or drag):** Erase a square.
+- **Change Year:** Use the `<` and `>` arrows at the bottom to pick which year you want to paint on.
+- _Tip: Don't worry about breaking anything! This is completely safe and won't mess up your actual real code contributions._
 
-### Upload to GitHub
+### Step 3: Put it on GitHub!
 
-1. Create a new repo on GitHub (private recommended).
-2. In the `.paintwithgit/` folder, run:
-
-```bash
-git remote add origin https://github.com/<you>/<repo>.git
-git push -f origin main
-```
-
-3. Check your GitHub profile - your art is on the graph.
+1. Click the big **Generate** button in the app.
+2. Click the **Go to output** button. This will automatically pop open your computer's file explorer and highlight a folder called `paintwithgit`.
+3. Go to [github.com](https://github.com/new) and **Create a new repository**.
+   - _Important:_ You can name it whatever you want, but make sure to set it to **Private** so it doesn't clutter your public repositories! (Don't worry, your green squares will still show up on your public profile).
+4. Right-click inside that `paintwithgit` folder you just opened and select **Open in Terminal** (or Open Git Bash here).
+5. Copy and paste these two commands into the terminal (make sure to replace the link with your new repo's link!):
+   ```bash
+   git remote add origin https://github.com/YOUR-USERNAME/YOUR-NEW-REPO.git
+   git push -u origin main -f
+   ```
+6. Go check your GitHub profile page. Boom! Your art is on your graph!
 
 <p align="center">
   <img src="assets/github_chart.png" alt="GitHub Chart" width="100%">
 </p>
 
-> The remote is saved locally. Future updates only need `git push -f origin main`.
+### How to Edit or Remove it later?
 
-### Updating
-
-Edit your drawing, click **Generate**, then run `git push -f origin main`.
-
-To remove it from GitHub, delete the repo.
+- **To edit it:** Just open the app again, change your drawing, click **Generate**, and type `git push -f` in that same terminal.
+- **To delete it completely:** Just go to GitHub and delete the private repository you created. Your graph will instantly go back to normal.
 
 ---
 

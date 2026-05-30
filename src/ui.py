@@ -35,12 +35,12 @@ class App(ctk.CTk):
                 pass
 
         self.config = Config()
+        self.repo_dir = os.path.join(os.getcwd(), "paintwithgit")
         self.dates = set()
         
         self.load_existing_commits()
 
         callbacks = {
-            "on_dir_change": self._on_dir_change,
             "on_year_change": self._redraw,
             "on_week_start_change": self._redraw,
             "clear_all": self.clear_all,
@@ -79,7 +79,7 @@ class App(ctk.CTk):
             
         def _load_task():
             new_dates = set()
-            if os.path.exists(os.path.join(self.config.dir, ".git")):
+            if os.path.exists(os.path.join(self.repo_dir, ".git")):
                 try:
                     kwargs = {}
                     if sys.platform == "win32":
@@ -87,7 +87,7 @@ class App(ctk.CTk):
                         
                     result = subprocess.run(
                         ["git", "log", "--format=%ad", "--date=short"],
-                        cwd=self.config.dir, capture_output=True, text=True, **kwargs
+                        cwd=self.repo_dir, capture_output=True, text=True, **kwargs
                     )
                     for line in result.stdout.strip().split("\n"):
                         if line:
@@ -103,10 +103,6 @@ class App(ctk.CTk):
         self.dates.update(new_dates)
         if hasattr(self, 'contribution_grid'):
             self._redraw()
-
-    def _on_dir_change(self):
-        self.load_existing_commits()
-        self._redraw()
 
     def _redraw(self):
         self.contribution_grid.draw()
@@ -135,7 +131,7 @@ class App(ctk.CTk):
         self.progress.start()
 
         dates_list = sorted(self.dates)
-        target_dir = self.config.dir
+        target_dir = self.repo_dir
 
         def run():
             try:
